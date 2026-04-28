@@ -900,12 +900,13 @@ function ChatPanel({ t, dark, messages, setMessages, setPage, addLead, addProjec
 
 function Sidebar({ t, page, setPage, pipelineCount, dark, setDark }) {
   const nav = [
-    { id: "dashboard", label: "Dashboard",        icon: LayoutDashboard },
-    { id: "discovery", label: "Discovery",         icon: Compass },
-    { id: "campaigns", label: "Campaigns",         icon: Target },
-    { id: "clients",   label: "Client Management", icon: Users },
-    { id: "dataroom",  label: "Data Room",         icon: FolderOpen },
-    { id: "terminal",  label: "Agent Terminal",    icon: Activity },
+    { id: "dashboard",  label: "Dashboard",         icon: LayoutDashboard },
+    { id: "analytics",  label: "Analytics",          icon: BarChart2 },
+    { id: "scout",      label: "Scout",              icon: Compass },
+    { id: "nexus",      label: "Nexus",              icon: GitMerge },
+    { id: "vault",      label: "Vault",              icon: FolderOpen },
+    { id: "pulse",      label: "Pulse",              icon: Activity },
+    { id: "clients",    label: "Client Management",  icon: Users },
   ];
   return (
     <aside className={`w-[210px] shrink-0 flex flex-col h-full ${t.sidebar}`}>
@@ -961,13 +962,17 @@ function Sidebar({ t, page, setPage, pipelineCount, dark, setDark }) {
 
 function Topbar({ t, page, dark, setDark }) {
   const titles = {
-    dashboard: "Dashboard",
-    discovery: "Discovery",
-    campaigns: "Campaigns",
-    clients:   "Client Management",
-    dataroom:  "Data Room",
-    pipeline:  "Sales Pipeline",
-    terminal:  "Agent Terminal",
+    dashboard:  "Dashboard",
+    analytics:  "Analytics",
+    scout:      "Scout — Lead Discovery",
+    nexus:      "Nexus — Matchmaking",
+    vault:      "Vault — Data Room",
+    pulse:      "Pulse — Market Intelligence",
+    clients:    "Client Management",
+    discovery:  "Discovery",
+    dataroom:   "Data Room",
+    pipeline:   "Sales Pipeline",
+    terminal:   "Agent Terminal",
   };
   return (
     <header className={`h-11 flex items-center gap-3 px-4 ${t.topbar} shrink-0`}>
@@ -1015,7 +1020,7 @@ function Dashboard({ t, dark, pipeline, setPage }) {
   return (
     <div className="p-4 space-y-3 max-w-6xl mx-auto">
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {stats.map(({ label, value, sub, icon: Icon, color, bg }) => (
           <div key={label} className={`rounded-xl p-3.5 ${t.card} border flex items-center gap-3`}>
             <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center shrink-0`}><Icon className={`w-4 h-4 ${color}`} /></div>
@@ -1029,8 +1034,8 @@ function Dashboard({ t, dark, pipeline, setPage }) {
       </div>
 
       {/* Agents + Market Pulse */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className={`col-span-2 rounded-xl p-3.5 ${t.card} border`}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className={`md:col-span-2 rounded-xl p-3.5 ${t.card} border`}>
           <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-1.5"><Brain className={`w-3.5 h-3.5 ${t.aiAccent}`} /><span className={`text-xs font-bold ${t.text}`}>Agent Modules</span></div>
             <button onClick={() => setPage("discovery")} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#E8601C] hover:bg-[#D04D0A] text-white transition-all shadow-[0_2px_8px_rgba(232,96,28,0.40)] hover:shadow-[0_3px_12px_rgba(232,96,28,0.55)]">
@@ -1039,9 +1044,10 @@ function Dashboard({ t, dark, pipeline, setPage }) {
           </div>
           <div className="space-y-1.5">
             {[
-              { id: "discovery", label: "Demand Agent",       desc: "Analyzes corporate ESG news, identifies buyers, assesses lead warmth, maps contacts", icon: Building2 },
-              { id: "discovery", label: "Supply Agent",       desc: "Reviews Verra & Gold Standard registries, scores projects against user benchmarks", icon: TreePine   },
-              { id: "discovery", label: "Matchmaking Engine", desc: "Cross-references demand profiles with supply to surface highest-value deal matches", icon: GitMerge   },
+              { id: "scout",   label: "Scout",  desc: "Scans corporate ESG signals, news & retirement history to identify and rank high-potential buyers", icon: Compass  },
+              { id: "nexus",   label: "Nexus",  desc: "Cross-references buyer demand profiles with supply projects to surface the highest-value deal matches", icon: GitMerge  },
+              { id: "vault",   label: "Vault",  desc: "Secure data room for carbon project documents, MRV records, registry certificates and due-diligence files", icon: FolderOpen },
+              { id: "pulse",   label: "Pulse",  desc: "Live carbon market intelligence — policy shifts, registry updates, price signals and corporate demand moves", icon: Activity  },
             ].map(({ id, label, desc, icon: Icon }) => (
               <button key={label} onClick={() => setPage(id)}
                 className={`w-full flex items-center gap-3 p-3 rounded-xl text-left ${t.card} ${t.cardHov} border`}>
@@ -2165,8 +2171,8 @@ function OpportunitiesTab({ pipeline = [], addProject, scannerRunning = false, d
   );
 }
 
-function AgentHub({ t, dark, pipeline, addLead, addProject }) {
-  const [activeTab,       setActiveTab]       = useState("opportunities");
+function AgentHub({ t, dark, pipeline, addLead, addProject, initialTab = "opportunities" }) {
+  const [activeTab,       setActiveTab]       = useState(initialTab);
   const [scannerRunning,  setScannerRunning]  = useState(false);
   const [scanMsgIdx,      setScanMsgIdx]      = useState(-1);  // -1 = idle
   const [msgVisible,      setMsgVisible]      = useState(false);
@@ -2243,7 +2249,7 @@ function AgentHub({ t, dark, pipeline, addLead, addProject }) {
           <div style={{ position:"absolute", top:"50%", width:140, height:1, background:"linear-gradient(90deg,transparent,#E8601C60,#E8601C,#E8601C60,transparent)", animation:"qScanX 3s linear infinite", pointerEvents:"none" }} />
         )}
 
-        <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight: scannerRunning ? 94 : 78, gap:8, position:"relative", padding:"10px 60px" }}>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight: scannerRunning ? 94 : 78, gap:8, position:"relative", padding:"10px 56px 10px 16px" }}>
 
           {/* Title row */}
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
@@ -2341,7 +2347,8 @@ function AgentHub({ t, dark, pipeline, addLead, addProject }) {
         {activeTab === "corporates" && (
           <div className="flex-1 overflow-y-auto p-4">
             <div className={`rounded-2xl ${t.card} border overflow-hidden`}>
-              <div className="grid px-4 py-2.5 border-b" style={{ gridTemplateColumns:"2fr 1.2fr 0.7fr 1fr 2.5fr auto", borderColor:"var(--c-border2)", background:"var(--c-card2)" }}>
+              <div className="overflow-x-auto">
+              <div className="grid px-4 py-2.5 border-b" style={{ gridTemplateColumns:"2fr 1.2fr 0.7fr 1fr 2.5fr auto", borderColor:"var(--c-border2)", background:"var(--c-card2)", minWidth: 600 }}>
                 {["Company","Carbon Need","ESG","Warmth","Matched Projects","Action"].map(h => (
                   <div key={h} className={`text-[10px] font-bold uppercase tracking-wide ${t.muted}`}>{h}</div>
                 ))}
@@ -2350,7 +2357,7 @@ function AgentHub({ t, dark, pipeline, addLead, addProject }) {
                 const inPipe = pipeline.some(p => p.type==="demand" && p.id===lead.id);
                 return (
                   <div key={lead.id} className={`grid px-4 py-3 border-b ${t.hover} items-center`}
-                    style={{ gridTemplateColumns:"2fr 1.2fr 0.7fr 1fr 2.5fr auto", borderColor:"var(--c-border2)" }}>
+                    style={{ gridTemplateColumns:"2fr 1.2fr 0.7fr 1fr 2.5fr auto", borderColor:"var(--c-border2)", minWidth: 600 }}>
                     <div className="flex items-center gap-2">
                       <span className="text-base">{lead.flag}</span>
                       <div>
@@ -2372,11 +2379,12 @@ function AgentHub({ t, dark, pipeline, addLead, addProject }) {
                 );
               })}
             </div>
+            </div>
           </div>
         )}
         {activeTab === "projects" && (
           <div className="flex-1 overflow-y-auto p-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {PROJECTS.map(proj => {
                 const inPipe = pipeline.some(p => p.type==="supply" && p.id===proj.id);
                 return (
@@ -2410,13 +2418,13 @@ function AgentHub({ t, dark, pipeline, addLead, addProject }) {
 // ─── PIPELINE ────────────────────────────────────────────────────────────────
 
 function Pipeline({ t, dark, pipeline, setPipeline }) {
-  const stages = ["Prospect", "Qualified", "Negotiating", "Closed"];
+  const stages = ["Prospect", "Qualified", "Negotiating", "Closed", "Client"];
   const move = (item, dir) => {
     const next = stages[stages.indexOf(item.stage) + dir];
     if (!next) return;
     setPipeline(prev => prev.map(p => p === item ? {...p, stage: next} : p));
   };
-  const stageColor = { Prospect: t.muted, Qualified: "text-amber-400", Negotiating: t.aiAccent, Closed: t.verified };
+  const stageColor = { Prospect: t.muted, Qualified: "text-amber-400", Negotiating: t.aiAccent, Closed: t.verified, Client: "text-[#80CBC4]" };
 
   return (
     <div className="p-3 space-y-3 h-full flex flex-col overflow-hidden">
@@ -2436,11 +2444,12 @@ function Pipeline({ t, dark, pipeline, setPipeline }) {
           </div>
         </div>
       ) : (
-        <div className="flex-1 grid grid-cols-4 gap-3 overflow-hidden">
+        <div className="flex-1 flex gap-3 overflow-x-auto pb-1" style={{ scrollSnapType: "x mandatory" }}>
           {stages.map(stage => {
             const items = pipeline.filter(p => p.stage === stage);
             return (
-              <div key={stage} className={`rounded-2xl p-3 ${t.kCol} border flex flex-col overflow-hidden`}>
+              <div key={stage} className={`rounded-2xl p-3 ${t.kCol} border flex flex-col overflow-hidden shrink-0`}
+                style={{ width: "min(260px, 72vw)", scrollSnapAlign: "start" }}>
                 <div className="flex items-center justify-between mb-3 px-1 shrink-0">
                   <span className={`text-xs font-bold uppercase tracking-wider ${stageColor[stage]}`}>{stage}</span>
                   <span className={t.tag}>{items.length}</span>
@@ -2603,7 +2612,7 @@ function CampaignModal({ t, campaign, isNew, readOnly, onClose, onSave }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]"
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="w-[920px] rounded-2xl shadow-2xl bg-[#252830] border border-[#2A2D38] flex flex-col overflow-hidden" style={{ maxHeight:"90vh" }}>
+      <div className="w-full rounded-2xl shadow-2xl bg-[#252830] border border-[#2A2D38] flex flex-col overflow-hidden mx-4 md:mx-0" style={{ maxWidth: 920, maxHeight:"90vh" }}>
 
         {/* ── Header ── */}
         <div className="px-7 pt-6 pb-4 border-b border-[#2A2D38] flex items-start justify-between shrink-0">
@@ -3071,12 +3080,13 @@ const CORP_JOURNEY_STAGES = [
   { id:"qualified", label:"Qualified"       },
   { id:"nda",       label:"NDA Signed"      },
   { id:"mou",       label:"MOU Signed"      },
+  { id:"trial",     label:"Trial Access",   optional:true },
   { id:"contract",  label:"Contract Signed" },
   { id:"po",        label:"PO Issued"       },
   { id:"onboarded", label:"Onboarded"       },
 ];
 
-const STAGE_TO_STEP = { "Prospect":0, "Qualified":1, "Negotiating":3, "Closed":6 };
+const STAGE_TO_STEP = { "Prospect":0, "Qualified":1, "Negotiating":3, "Closed":7, "Client":7 };
 
 const CORP_DOCS = [
   {
@@ -3090,6 +3100,12 @@ const CORP_DOCS = [
     file:"MOU_Template_CarbonCredit_v2.pdf", size:"120 KB",
     desc:"Non-binding agreement outlining intent, volume targets, price range and project preferences.",
     ai:"AI can pre-fill volume and project preferences from Discovery data. Recommend including co-benefits clauses.",
+  },
+  {
+    stage:"trial", label:"Trial Access Setup", abbr:"Trial",
+    file:"TrialAccess_CredentialPack_14day.pdf", size:"36 KB",
+    desc:"Optional 14-day trial access to carbon credit registry data and project dashboard for buyer due diligence.",
+    ai:"Trial credential pack issued on request. 14-day access window with read-only registry data. Converts to full access on contract execution.",
   },
   {
     stage:"contract", label:"Commercial Contract", abbr:"Contract",
@@ -3112,9 +3128,9 @@ const CORP_DOCS = [
 ];
 
 const STEP_DOCS = {
-  0:[], 1:[], 2:["nda"], 3:["nda","mou"],
-  4:["nda","mou","contract"], 5:["nda","mou","contract","po"],
-  6:["nda","mou","contract","po","invoice"],
+  0:[], 1:[], 2:["nda"], 3:["nda","mou"], 4:["nda","mou"],
+  5:["nda","mou","contract"], 6:["nda","mou","contract","po"],
+  7:["nda","mou","contract","po","invoice"],
 };
 
 const CORP_AGENT_INIT = (corp) => [
@@ -3125,6 +3141,179 @@ const CORP_AGENT_INIT = (corp) => [
   `Contact enrichment: LinkedIn profile verified for ${corp.contact?.name||"contact"}`,
   "Recommended next action: Send NDA for countersignature",
 ];
+
+// ─── CLIENT CHAT DRAWER ──────────────────────────────────────────────────────
+
+function ClientChatDrawer({ corp }) {
+  const clientName = corp.company || corp.name || "Client";
+  const contactName = corp.contact?.name || "Client";
+
+  const INIT_MSGS = [
+    { id:1, from:"internal", sender:"Lena B.", text:"Hi, just shared the updated MRV methodology PDF — let us know if you need any clarifications on Section 4.", time:"09:14", file:null },
+    { id:2, from:"client",   sender:clientName, text:"Thanks Lena, received. We'll review the permanence risk buffer calculation — can you confirm the 12% figure is post-2024 verification?", time:"09:21", file:null },
+    { id:3, from:"internal", sender:"Nicholas Y.", text:"Confirmed — the 12% buffer reflects the updated VVB assessment from RINA, post April 2024 recalculation.", time:"09:35", file:null },
+    { id:4, from:"internal", sender:"Gordian K.", text:"Attaching the Verra serial batch PDF for your records.", time:"10:02", file:{ name:"Verra_Serial_Batch_SBK_Q1.pdf", size:"1.2 MB" } },
+    { id:5, from:"client",   sender:clientName, text:"Perfect, that aligns with our DD requirements. We'll circle back after internal review — targeting sign-off by end of week.", time:"10:18", file:null },
+    { id:6, from:"internal", sender:"Lena B.", text:"Understood, standing by. Let us know if you'd like a call to walk through the Katingan comparison table.", time:"10:45", file:null },
+  ];
+
+  const [open, setOpen] = useState(false);
+  const [msgs, setMsgs] = useState(INIT_MSGS);
+  const [input, setInput] = useState("");
+  const [unread, setUnread] = useState(2);
+  const [typing, setTyping] = useState(false);
+  const bottomRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => { if (open) { setUnread(0); setTimeout(() => bottomRef.current?.scrollIntoView({ behavior:"smooth" }), 100); } }, [open]);
+  useEffect(() => { if (open) bottomRef.current?.scrollIntoView({ behavior:"smooth" }); }, [msgs]);
+
+  const clientReplies = [
+    "Thanks for the quick turnaround — we'll review internally.",
+    "Can you share the latest vintage availability for Q3 2025?",
+    "Our legal team has a few questions on the retirement clause — will follow up.",
+    "Looks good. We're targeting final sign-off by end of week.",
+    "Noted. Can you confirm the buffer rate post the 2024 VVB reassessment?",
+  ];
+
+  const send = () => {
+    const txt = input.trim();
+    if (!txt) return;
+    const now = new Date();
+    const ts = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+    setMsgs(prev => [...prev, { id:Date.now(), from:"internal", sender:"You", text:txt, time:ts, file:null }]);
+    setInput("");
+    setTyping(true);
+    setTimeout(() => {
+      const reply = clientReplies[Math.floor(Math.random() * clientReplies.length)];
+      const ts2 = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()+1).padStart(2,"0")}`;
+      setMsgs(prev => [...prev, { id:Date.now()+1, from:"client", sender:clientName, text:reply, time:ts2, file:null }]);
+      setTyping(false);
+      if (!open) setUnread(u => u + 1);
+    }, 1800);
+  };
+
+  const handleFile = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const now = new Date();
+    const ts = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+    setMsgs(prev => [...prev, { id:Date.now(), from:"internal", sender:"You", text:"", time:ts, file:{ name:f.name, size:`${(f.size/1024).toFixed(0)} KB` } }]);
+    e.target.value = "";
+  };
+
+  return (
+    <div style={{ position:"fixed", top:0, right:0, height:"100%", zIndex:200, display:"flex", alignItems:"stretch", pointerEvents:"none" }}>
+      {/* Collapsed tab */}
+      {!open && (
+        <div
+          onClick={() => setOpen(true)}
+          style={{
+            pointerEvents:"all", width:56, background:"rgba(20,22,30,0.92)", backdropFilter:"blur(12px)",
+            borderLeft:"1px solid rgba(255,255,255,0.08)", display:"flex", flexDirection:"column",
+            alignItems:"center", justifyContent:"center", gap:8, cursor:"pointer",
+            borderRadius:"12px 0 0 12px", boxShadow:"-4px 0 24px rgba(0,0,0,0.4)",
+          }}>
+          <div style={{ position:"relative" }}>
+            <MessageSquare style={{ width:20, height:20, color:"#E8601C" }} />
+            {unread > 0 && (
+              <span style={{
+                position:"absolute", top:-6, right:-6, background:"#E8601C", color:"#fff",
+                fontSize:9, fontWeight:800, borderRadius:999, minWidth:16, height:16,
+                display:"flex", alignItems:"center", justifyContent:"center", padding:"0 3px",
+                animation:"pulse 1.5s ease-in-out infinite",
+              }}>{unread}</span>
+            )}
+          </div>
+          <div style={{ fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.45)", letterSpacing:"0.12em", writingMode:"vertical-rl", textOrientation:"mixed" }}>MSGS</div>
+        </div>
+      )}
+
+      {/* Expanded drawer */}
+      {open && (
+        <div style={{
+          pointerEvents:"all", width:380, display:"flex", flexDirection:"column",
+          background:"rgba(16,18,26,0.96)", backdropFilter:"blur(20px)",
+          borderLeft:"1px solid rgba(255,255,255,0.08)",
+          boxShadow:"-8px 0 40px rgba(0,0,0,0.55)",
+          animation:"slideIn 0.28s cubic-bezier(0.34,1.56,0.64,1)",
+        }}>
+          {/* Header */}
+          <div style={{ padding:"14px 16px", borderBottom:"1px solid rgba(255,255,255,0.07)", display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
+            <div style={{ width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#E8601C,#A84232)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:"#fff", flexShrink:0 }}>
+              {clientName.slice(0,2).toUpperCase()}
+            </div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:13, fontWeight:800, color:"#fff", lineHeight:1 }}>{clientName}</div>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.35)", marginTop:2 }}>Client Communications</div>
+            </div>
+            <button onClick={() => setOpen(false)} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.35)", cursor:"pointer", padding:4, borderRadius:6, fontSize:18, lineHeight:1 }}>×</button>
+          </div>
+
+          {/* Messages */}
+          <div style={{ flex:1, overflowY:"auto", padding:"14px 14px 8px", display:"flex", flexDirection:"column", gap:10 }}>
+            {msgs.map(m => (
+              <div key={m.id} style={{ display:"flex", flexDirection:"column", alignItems:m.from==="internal" ? "flex-end" : "flex-start" }}>
+                <div style={{ fontSize:9, color:"rgba(255,255,255,0.3)", marginBottom:3, paddingLeft:4, paddingRight:4 }}>
+                  {m.sender} · {m.time}
+                </div>
+                {m.file ? (
+                  <div style={{
+                    background:m.from==="internal" ? "rgba(232,96,28,0.12)" : "rgba(255,255,255,0.05)",
+                    border:`1px solid ${m.from==="internal" ? "rgba(232,96,28,0.3)" : "rgba(255,255,255,0.08)"}`,
+                    borderRadius:10, padding:"8px 12px", maxWidth:"85%", display:"flex", alignItems:"center", gap:8,
+                  }}>
+                    <FileText style={{ width:16, height:16, color:m.from==="internal" ? "#E8601C" : "#80CBC4", flexShrink:0 }} />
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:600, color:"#fff" }}>{m.file.name}</div>
+                      <div style={{ fontSize:9, color:"rgba(255,255,255,0.35)" }}>{m.file.size} · PDF</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{
+                    background:m.from==="internal" ? "rgba(232,96,28,0.14)" : "rgba(255,255,255,0.06)",
+                    border:`1px solid ${m.from==="internal" ? "rgba(232,96,28,0.28)" : "rgba(255,255,255,0.08)"}`,
+                    borderRadius:m.from==="internal" ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
+                    padding:"8px 12px", maxWidth:"85%", fontSize:12, color:"rgba(255,255,255,0.85)", lineHeight:1.5,
+                  }}>
+                    {m.text}
+                  </div>
+                )}
+              </div>
+            ))}
+            {typing && (
+              <div style={{ display:"flex", alignItems:"flex-start" }}>
+                <div style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:"12px 12px 12px 2px", padding:"8px 14px", fontSize:18, color:"rgba(255,255,255,0.4)", letterSpacing:3 }}>···</div>
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+
+          {/* Input */}
+          <div style={{ padding:"10px 12px 14px", borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", gap:8, alignItems:"flex-end", flexShrink:0 }}>
+            <input type="file" ref={fileInputRef} onChange={handleFile} style={{ display:"none" }} />
+            <button onClick={() => fileInputRef.current?.click()}
+              style={{ background:"none", border:"1px solid rgba(255,255,255,0.1)", borderRadius:8, padding:"7px 9px", color:"rgba(255,255,255,0.4)", cursor:"pointer", flexShrink:0 }}>
+              <Upload style={{ width:14, height:14 }} />
+            </button>
+            <input
+              value={input} onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+              placeholder="Message client..."
+              style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", borderRadius:10, padding:"8px 12px", color:"#fff", fontSize:12, outline:"none" }}
+            />
+            <button onClick={send}
+              style={{ background:"#E8601C", border:"none", borderRadius:8, padding:"8px 11px", color:"#fff", cursor:"pointer", flexShrink:0, boxShadow:"0 2px 8px rgba(232,96,28,0.4)" }}>
+              <Send style={{ width:14, height:14 }} />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── CORPORATE DETAIL PAGE ────────────────────────────────────────────────────
 
 function CorporateDetailPage({ corp, onBack, t }) {
   const step     = STAGE_TO_STEP[corp.stage] ?? 0;
@@ -3155,10 +3344,11 @@ function CorporateDetailPage({ corp, onBack, t }) {
   }, []);
 
   return (
-    <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden", minHeight:0, background:"var(--c-bg3)" }}>
+    <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden", minHeight:0, background:"var(--c-bg3)", position:"relative" }}>
+      <ClientChatDrawer corp={corp} />
 
       {/* ── Header ── */}
-      <div style={{ flexShrink:0, padding:"13px 20px", borderBottom:"1px solid var(--c-border2)", background:"var(--c-card2)", display:"flex", alignItems:"center", gap:12 }}>
+      <div style={{ flexShrink:0, padding:"13px 72px 13px 20px", borderBottom:"1px solid var(--c-border2)", background:"var(--c-card2)", display:"flex", alignItems:"center", gap:12 }}>
         <button onClick={onBack}
           style={{ padding:"6px 12px", borderRadius:8, background:"var(--c-card3)", border:"1px solid var(--c-border2)", color:"var(--c-sub)", fontSize:11, fontWeight:600, cursor:"pointer" }}>
           ← Back
@@ -3179,7 +3369,7 @@ function CorporateDetailPage({ corp, onBack, t }) {
       </div>
 
       {/* ── Journey Stepper ── */}
-      <div style={{ flexShrink:0, padding:"14px 28px 10px", borderBottom:"1px solid var(--c-border2)", background:"var(--c-card2)" }}>
+      <div style={{ flexShrink:0, padding:"14px 84px 10px 28px", borderBottom:"1px solid var(--c-border2)", background:"var(--c-card2)" }}>
         <div style={{ display:"flex", alignItems:"center" }}>
           {CORP_JOURNEY_STAGES.map((s, idx) => (
             <div key={s.id} style={{ display:"flex", alignItems:"center", flex: idx < CORP_JOURNEY_STAGES.length-1 ? 1 : "none" }}>
@@ -3195,6 +3385,7 @@ function CorporateDetailPage({ corp, onBack, t }) {
                   {idx < step ? "✓" : idx+1}
                 </div>
                 <div style={{ fontSize:9, fontWeight:600, whiteSpace:"nowrap", color: idx < step ? "#80CBC4" : idx === step ? "#E8601C" : "rgba(255,255,255,0.25)" }}>{s.label}</div>
+                {s.optional && <div style={{ fontSize:8, fontWeight:700, color:"rgba(232,96,28,0.55)", letterSpacing:"0.06em" }}>OPTIONAL</div>}
               </div>
               {idx < CORP_JOURNEY_STAGES.length-1 && (
                 <div style={{ flex:1, height:2, margin:"0 5px 18px", background: idx < step ? "#4A7040" : "#2A2D38", minWidth:6 }} />
@@ -3205,7 +3396,7 @@ function CorporateDetailPage({ corp, onBack, t }) {
       </div>
 
       {/* ── Body ── */}
-      <div style={{ flex:1, display:"flex", minHeight:0, overflow:"hidden" }}>
+      <div style={{ flex:1, display:"flex", minHeight:0, overflow:"hidden", paddingRight:56 }}>
 
         {/* Left scrollable content */}
         <div style={{ flex:1, overflowY:"auto", padding:"20px 20px 28px" }}>
@@ -3253,7 +3444,7 @@ function CorporateDetailPage({ corp, onBack, t }) {
             </div>
           )}
 
-          {/* Agentic Document Management */}
+          {/* Nexus Docs */}
           <div style={{ background:"var(--c-card3)", border:"1px solid var(--c-border2)", borderRadius:16, overflow:"hidden" }}>
             {/* Section header */}
             <div style={{ padding:"14px 20px", borderBottom:"1px solid var(--c-border2)", display:"flex", alignItems:"center", gap:10 }}>
@@ -3261,7 +3452,7 @@ function CorporateDetailPage({ corp, onBack, t }) {
                 <Brain style={{ width:14, height:14, color:"#E8601C" }} />
               </div>
               <div>
-                <div style={{ fontSize:12, fontWeight:800, color:"var(--c-text)" }}>Agentic Document Management</div>
+                <div style={{ fontSize:12, fontWeight:800, color:"var(--c-text)" }}>Nexus Docs</div>
                 <div style={{ fontSize:10, color:"var(--c-muted)" }}>AI-driven collection &amp; review across the deal lifecycle</div>
               </div>
               <div style={{ flex:1 }} />
@@ -3444,6 +3635,7 @@ function ClientsPage({ t, dark, pipeline, setPage }) {
   }
 
   const stageColor = (stage) => {
+    if (stage === "Client")      return "bg-[#00897B]/20 text-[#80CBC4] border-[#00897B]/45";
     if (stage === "Closed")      return "bg-[#2D3C29]/30 text-[#80CBC4] border-[#2D3C29]/60";
     if (stage === "Negotiating") return "bg-[#E8601C]/10 text-[#E8601C] border-[#E8601C]/25";
     if (stage === "Qualified")   return "bg-[#A84232]/15 text-[#E8A080] border-[#A84232]/35";
@@ -3475,20 +3667,21 @@ function ClientsPage({ t, dark, pipeline, setPage }) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* ── Stats row ── */}
-      <div className="grid grid-cols-4 gap-3 p-4 pb-0 shrink-0">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 pb-0 shrink-0">
         {[
-          { label: "Corporates",      value: corporates.length, icon: Building2,  color: "text-[#E8601C]", bg: "bg-[#E8601C]/10" },
-          { label: "Projects",        value: projects.length,   icon: TreePine,   color: "text-[#80CBC4]", bg: "bg-[#2D3C29]/25" },
-          { label: "Total in Pipeline", value: pipeline.length, icon: Briefcase,  color: "text-[#E8601C]", bg: "bg-[#E8601C]/10" },
-          { label: "Active Stages",   value: pipeline.filter(p=>p.stage!=="Prospect").length, icon: TrendingUp, color:"text-[#80CBC4]", bg:"bg-[#2D3C29]/25" },
-        ].map(({ label, value, icon: Icon, color, bg }) => (
+          { label: "Projects & Buyers Matched", value: 6,        sub: "Active pairs · +2 this quarter",       icon: GitMerge,   color: "text-[#E8601C]", bg: "bg-[#E8601C]/10" },
+          { label: "Active Pipeline",          value: "1.06M",  sub: "Tonnes CO₂e credits · +18% vs last qtr", icon: BarChart2,  color: "text-[#80CBC4]", bg: "bg-[#2D3C29]/25" },
+          { label: "Potential Fees",           value: "$680K",  sub: "Est. advisory revenue · +12% vs pipeline",icon: TrendingUp, color: "text-[#E8601C]", bg: "bg-[#E8601C]/10" },
+          { label: "Carbon Credit Book",       value: "7M",     sub: "Tonnes CO₂e total est. · Target Q4 2026", icon: TreePine,   color: "text-[#80CBC4]", bg: "bg-[#2D3C29]/25" },
+        ].map(({ label, value, sub, icon: Icon, color, bg }) => (
           <div key={label} className={`rounded-xl p-3.5 ${t.card} border flex items-center gap-3`}>
             <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
               <Icon className={`w-4 h-4 ${color}`} />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className={`text-xl font-black ${t.text} leading-none`}>{value}</div>
-              <div className={`text-xs ${t.sub} mt-0.5`}>{label}</div>
+              <div className={`text-xs font-semibold ${t.sub} mt-0.5`}>{label}</div>
+              {sub && <div className={`text-[10px] ${t.muted} mt-0.5 leading-tight`}>{sub}</div>}
             </div>
           </div>
         ))}
@@ -3659,6 +3852,227 @@ function ClientsPage({ t, dark, pipeline, setPage }) {
               </div>
             )
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── PULSE PAGE ──────────────────────────────────────────────────────────────
+
+const PULSE_FEED = [
+  { id:1,  cat:"Regulatory",  region:"Global",      signal:"high",   headline:"ICVCM releases updated Core Carbon Principles guidance for Article 6.4 credits", body:"The Integrity Council for the Voluntary Carbon Market published updated CCPs covering additionality tests, baseline methodology approvals, and new disclosure requirements effective Q3 2025.", source:"ICVCM", date:"27 Apr 2026" },
+  { id:2,  cat:"Article 6",   region:"Asia-Pacific", signal:"high",   headline:"Singapore and Indonesia finalise Article 6.2 bilateral agreement for REDD+ credits", body:"The bilateral deal covers up to 4M tCO₂e/yr in corresponding adjustments for REDD+ projects in Kalimantan and Sumatra. First transfer expected Q2 2026.", source:"UNFCCC", date:"26 Apr 2026" },
+  { id:3,  cat:"VCM",         region:"Global",       signal:"medium", headline:"Verra approves VM0048 APD module — first new REDD+ methodology in three years", body:"The approved methodology covers Avoided Planned Deforestation in production forest concessions. Applies to 14 projects currently in the validation pipeline.", source:"Verra", date:"25 Apr 2026" },
+  { id:4,  cat:"Corporate",   region:"Japan",        signal:"medium", headline:"Tokyo Gas expands J-Credit procurement target to 2.5M tCO₂e ahead of FY2027", body:"Tokyo Gas updated its sustainability roadmap, raising voluntary offset targets by 40% and explicitly including REDD+ and IFM project types in its approved procurement list.", source:"Tokyo Gas IR", date:"24 Apr 2026" },
+  { id:5,  cat:"Finance",     region:"Europe",       signal:"medium", headline:"Engie closes $150M green bond linked to voluntary carbon portfolio performance", body:"The bond is structured with a coupon step-up tied to annual carbon credit retirement volumes. Rated A- by S&P. First of its kind in the European utilities sector.", source:"Bloomberg", date:"23 Apr 2026" },
+  { id:6,  cat:"Science",     region:"Indonesia",    signal:"high",   headline:"BeZero Carbon upgrades South Barito Kapuas REDD+ project to AA rating", body:"Upgrade follows updated permanence assessment post-2024 buffer recalculation. BeZero cited improved leakage monitoring and stronger community tenure agreements as key factors.", source:"BeZero Carbon", date:"22 Apr 2026" },
+  { id:7,  cat:"Geopolitics", region:"Brazil",       signal:"low",    headline:"Brazil submits updated NDC with 50% deforestation reduction target — REDD+ pipeline expands", body:"Brazil's revised NDC increases ambition on the Amazon. Forest Trends estimates this will unlock 20–30M additional REDD+ credits/yr eligible for Article 6 bilateral deals by 2028.", source:"UNFCCC / Reuters", date:"21 Apr 2026" },
+  { id:8,  cat:"VCM",         region:"Africa",       signal:"medium", headline:"Gold Standard launches Blue Carbon Integrity Framework for West African mangrove projects", body:"The new framework covers MRV methodologies for mangrove restoration in Senegal, Ghana and Côte d'Ivoire. Projects registered under the framework gain automatic CORSIA eligibility.", source:"Gold Standard", date:"20 Apr 2026" },
+];
+
+const SIGNAL_META = { high: { label:"High Impact", color:"#E8601C", bg:"rgba(232,96,28,0.12)" }, medium: { label:"Medium", color:"#E8A080", bg:"rgba(232,96,28,0.07)" }, low: { label:"Watch", color:"rgba(255,255,255,0.35)", bg:"rgba(255,255,255,0.05)" } };
+const CAT_COLOR = { Regulatory:"#80CBC4", "Article 6":"#E8601C", VCM:"#4A7040", Corporate:"#5BA3D9", Finance:"#A84232", Science:"#80CBC4", Geopolitics:"rgba(255,255,255,0.4)" };
+
+function PulsePage({ t, dark }) {
+  const [expanded, setExpanded] = useState(null);
+  const [filterCat, setFilterCat] = useState("All");
+  const cats = ["All", ...Array.from(new Set(PULSE_FEED.map(p => p.cat)))];
+  const filtered = filterCat === "All" ? PULSE_FEED : PULSE_FEED.filter(p => p.cat === filterCat);
+
+  return (
+    <div className="p-4 max-w-4xl mx-auto space-y-4">
+      {/* Header */}
+      <div className={`rounded-2xl p-4 ${t.card} border flex items-center gap-3`}>
+        <div className="w-9 h-9 rounded-xl bg-[#E8601C]/10 flex items-center justify-center shrink-0">
+          <Activity className="w-4 h-4 text-[#E8601C]" />
+        </div>
+        <div className="flex-1">
+          <div className={`text-sm font-bold ${t.text}`}>Pulse — Carbon Market Intelligence</div>
+          <div className={`text-xs ${t.muted}`}>Live signals across policy, registries, corporate activity and project pipeline</div>
+        </div>
+        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#E8601C]/10 text-[#E8601C] border border-[#E8601C]/20">
+          {PULSE_FEED.filter(p => p.signal === "high").length} High Impact
+        </span>
+      </div>
+
+      {/* Category filter */}
+      <div className="flex gap-2 flex-wrap">
+        {cats.map(c => (
+          <button key={c} onClick={() => setFilterCat(c)}
+            className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-all
+              ${filterCat === c
+                ? "bg-[#E8601C] text-white border-[#E8601C]"
+                : `${t.card} border-${t.border} ${t.muted} hover:border-[#E8601C]/40`}`}>
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {/* Feed */}
+      <div className="space-y-2">
+        {filtered.map(item => {
+          const sig = SIGNAL_META[item.signal];
+          const catCol = CAT_COLOR[item.cat] || "rgba(255,255,255,0.4)";
+          const isOpen = expanded === item.id;
+          return (
+            <div key={item.id} className={`rounded-xl ${t.card} border overflow-hidden cursor-pointer transition-all`}
+              onClick={() => setExpanded(isOpen ? null : item.id)}>
+              <div className="flex items-start gap-3 p-3.5">
+                {/* Signal dot */}
+                <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: sig.color }} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ color: catCol, background: `${catCol}18`, border: `1px solid ${catCol}35` }}>{item.cat}</span>
+                    <span className={`text-[10px] ${t.muted}`}>{item.region}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ color: sig.color, background: sig.bg }}>{sig.label}</span>
+                  </div>
+                  <div className={`text-xs font-semibold ${t.text} leading-snug`}>{item.headline}</div>
+                  {isOpen && (
+                    <div className={`mt-2 text-xs ${t.muted} leading-relaxed border-t ${t.border} pt-2`}>
+                      <p>{item.body}</p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className={`text-[10px] font-semibold ${t.sub}`}>Source: {item.source}</span>
+                        <span className={`text-[10px] ${t.muted}`}>{item.date}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className={`text-[10px] ${t.muted} shrink-0 mt-0.5`}>{item.date.split(" ").slice(0,2).join(" ")}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── ANALYTICS PAGE ───────────────────────────────────────────────────────────
+
+const DEAL_STAGE_DATA = [
+  { stage: "Scout",       count: 24, fill: "#E8601C" },
+  { stage: "Qualified",   count: 14, fill: "#A84232" },
+  { stage: "Negotiating", count:  8, fill: "#80CBC4" },
+  { stage: "Closed",      count:  3, fill: "#4A7040" },
+  { stage: "Client",      count:  2, fill: "#2D3C29" },
+];
+
+const VOLUME_DATA = [
+  { month:"Oct", volume:0.62 }, { month:"Nov", volume:0.74 }, { month:"Dec", volume:0.85 },
+  { month:"Jan", volume:0.91 }, { month:"Feb", volume:0.98 }, { month:"Mar", volume:1.06 },
+];
+
+const LEADERBOARD = [
+  { name:"Lena B.",     matches:3, pipeline:"$280K", closed:"$120K", rank:1 },
+  { name:"Nicholas Y.", matches:2, pipeline:"$195K", closed:"$85K",  rank:2 },
+  { name:"Gordian K.",  matches:1, pipeline:"$140K", closed:"$60K",  rank:3 },
+  { name:"Natalie S.",  matches:0, pipeline:"$65K",  closed:"$0",    rank:4 },
+];
+
+function AnalyticsPage({ t, dark, pipeline }) {
+  const kpis = [
+    { label:"Projects & Buyers Matched", value:"6",      sub:"+2 this quarter",           icon:GitMerge,   color:"text-[#E8601C]", bg:"bg-[#E8601C]/10" },
+    { label:"Active Pipeline",           value:"1.06M",  sub:"Tonnes CO₂e · +18% vs Q4", icon:BarChart2,  color:"text-[#80CBC4]", bg:"bg-[#2D3C29]/25" },
+    { label:"Potential Fees",            value:"$680K",  sub:"Est. advisory revenue",     icon:TrendingUp, color:"text-[#E8601C]", bg:"bg-[#E8601C]/10" },
+    { label:"Carbon Credit Book",        value:"7M",     sub:"Tonnes CO₂e · Target Q4 2026", icon:TreePine, color:"text-[#80CBC4]", bg:"bg-[#2D3C29]/25" },
+  ];
+  const secondary = [
+    { label:"Pipeline Coverage",  value:"3.2×",  sub:"vs 2.5× target" },
+    { label:"Win Rate",           value:"38%",   sub:"+6pp vs last qtr" },
+    { label:"Lead Velocity Rate", value:"12d",   sub:"Avg days to qualify" },
+    { label:"CAC",                value:"$4.2K", sub:"Per matched pair" },
+  ];
+
+  const maxVol = Math.max(...VOLUME_DATA.map(d => d.volume));
+
+  return (
+    <div className="p-4 space-y-4 max-w-5xl mx-auto">
+
+      {/* Primary KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {kpis.map(({ label, value, sub, icon:Icon, color, bg }) => (
+          <div key={label} className={`rounded-xl p-3.5 ${t.card} border`}>
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center shrink-0`}><Icon className={`w-3.5 h-3.5 ${color}`} /></div>
+            </div>
+            <div className={`text-2xl font-black ${t.text} leading-none`}>{value}</div>
+            <div className={`text-xs font-semibold ${t.sub} mt-1`}>{label}</div>
+            <div className={`text-[10px] ${t.muted} mt-0.5`}>{sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Secondary KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {secondary.map(({ label, value, sub }) => (
+          <div key={label} className={`rounded-xl p-3 ${t.card} border`}>
+            <div className={`text-lg font-black ${t.text}`}>{value}</div>
+            <div className={`text-[11px] font-semibold ${t.sub} mt-0.5`}>{label}</div>
+            <div className={`text-[10px] ${t.muted}`}>{sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+        {/* Deal stage funnel */}
+        <div className={`rounded-xl p-4 ${t.card} border`}>
+          <div className={`text-xs font-bold ${t.text} mb-3 flex items-center gap-1.5`}>
+            <BarChart2 className={`w-3.5 h-3.5 ${t.aiAccent}`} />Deal Stage Funnel
+          </div>
+          <div className="space-y-2">
+            {DEAL_STAGE_DATA.map(({ stage, count, fill }) => (
+              <div key={stage} className="flex items-center gap-3">
+                <div className={`text-[11px] w-24 shrink-0 font-medium ${t.sub}`}>{stage}</div>
+                <div className="flex-1 h-5 rounded-md overflow-hidden" style={{ background:"rgba(255,255,255,0.04)" }}>
+                  <div className="h-full rounded-md transition-all" style={{ width:`${(count/24)*100}%`, background:fill, opacity:0.85 }} />
+                </div>
+                <div className={`text-[11px] font-bold ${t.text} w-6 text-right shrink-0`}>{count}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pipeline volume trend */}
+        <div className={`rounded-xl p-4 ${t.card} border`}>
+          <div className={`text-xs font-bold ${t.text} mb-3 flex items-center gap-1.5`}>
+            <TrendingUp className={`w-3.5 h-3.5 text-[#80CBC4]`} />Active Pipeline Volume (M tCO₂e)
+          </div>
+          <div className="flex items-end gap-2 h-28">
+            {VOLUME_DATA.map(({ month, volume }) => (
+              <div key={month} className="flex-1 flex flex-col items-center gap-1">
+                <div className={`text-[9px] font-bold ${t.muted}`}>{volume.toFixed(2)}</div>
+                <div className="w-full rounded-t-md transition-all" style={{ height:`${(volume/maxVol)*90}%`, background:"linear-gradient(180deg,#80CBC4,#4A7040)", minHeight:4 }} />
+                <div className={`text-[9px] ${t.muted}`}>{month}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Leaderboard */}
+      <div className={`rounded-xl ${t.card} border overflow-hidden`}>
+        <div className={`px-4 py-3 border-b ${t.border} flex items-center gap-2`}>
+          <Users className={`w-3.5 h-3.5 ${t.aiAccent}`} />
+          <span className={`text-xs font-bold ${t.text}`}>Team Leaderboard</span>
+        </div>
+        <div className={`grid px-4 py-2 border-b ${t.border} text-[10px] font-bold uppercase tracking-wider ${t.muted}`}
+          style={{ gridTemplateColumns:"2rem 1fr 5rem 5rem 5rem" }}>
+          <div>#</div><div>Rep</div><div className="text-right">Matches</div><div className="text-right">Pipeline</div><div className="text-right">Fees</div>
+        </div>
+        {LEADERBOARD.map(({ name, matches, pipeline: pl, closed, rank }) => (
+          <div key={name} className={`grid px-4 py-3 border-b last:border-0 ${t.border} items-center`}
+            style={{ gridTemplateColumns:"2rem 1fr 5rem 5rem 5rem" }}>
+            <div className={`text-xs font-black ${rank === 1 ? "text-[#E8601C]" : t.muted}`}>
+              {rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank}
+            </div>
+            <div className={`text-xs font-semibold ${t.text}`}>{name}</div>
+            <div className={`text-xs font-bold text-right ${matches > 0 ? "text-[#80CBC4]" : t.muted}`}>{matches}</div>
+            <div className={`text-xs text-right ${t.sub}`}>{pl}</div>
+            <div className={`text-xs font-semibold text-right ${closed !== "$0" ? "text-[#E8601C]" : t.muted}`}>{closed}</div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -4200,25 +4614,113 @@ function AgentTerminalPage({ t, agents, setAgents }) {
   );
 }
 
+// ─── MOBILE BOTTOM NAV ───────────────────────────────────────────────────────
+
+function MobileBottomNav({ t, page, setPage, pipelineCount, onChatToggle, chatOpen }) {
+  const nav = [
+    { id: "dashboard",  label: "Home",      icon: LayoutDashboard },
+    { id: "analytics",  label: "Analytics", icon: BarChart2 },
+    { id: "scout",      label: "Scout",     icon: Compass },
+    { id: "nexus",      label: "Nexus",     icon: GitMerge },
+    { id: "clients",    label: "Clients",   icon: Users },
+  ];
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center bg-[#0D0F14] border-t border-[#1C1F28]"
+      style={{ height: 60, paddingBottom: "env(safe-area-inset-bottom)" }}>
+      {nav.map(({ id, label, icon: Icon }) => (
+        <button key={id} onClick={() => setPage(id)}
+          className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-colors
+            ${page === id ? "text-[#E8601C]" : "text-white/35"}`}>
+          <Icon className="w-5 h-5" />
+          <span className="text-[9px] font-medium">{label}</span>
+          {id === "pipeline" && pipelineCount > 0 && (
+            <span className="absolute top-1.5 w-3.5 h-3.5 rounded-full bg-[#E8601C] text-white text-[8px] font-bold flex items-center justify-center">
+              {pipelineCount}
+            </span>
+          )}
+        </button>
+      ))}
+      <button onClick={onChatToggle}
+        className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-colors
+          ${chatOpen ? "text-[#E8601C]" : "text-white/35"}`}>
+        <MessageSquare className="w-5 h-5" />
+        <span className="text-[9px] font-medium">Chat</span>
+      </button>
+    </nav>
+  );
+}
+
+// ─── MOBILE TOPBAR ───────────────────────────────────────────────────────────
+
+function MobileTopbar({ t, page, dark, setDark, onChatToggle, chatOpen }) {
+  const titles = {
+    dashboard: "Dashboard", analytics: "Analytics", scout: "Scout", nexus: "Nexus",
+    vault: "Vault", pulse: "Pulse", clients: "Clients", dataroom: "Data Room",
+    discovery: "Discovery", pipeline: "Pipeline", terminal: "Agents",
+  };
+  return (
+    <header className={`flex items-center gap-3 px-4 ${t.topbar} shrink-0`} style={{ height: 52 }}>
+      <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${t.logoGrad} flex items-center justify-center shrink-0`}>
+        <Leaf className="w-3.5 h-3.5 text-white" />
+      </div>
+      <h1 className={`text-sm font-bold ${t.text} flex-1`}>{titles[page] || "Qatalyst"}</h1>
+      <button onClick={() => setDark(d => !d)} className={`p-1.5 rounded-lg ${t.card} border`}>
+        {dark ? <Sun className={`w-4 h-4 ${t.sub}`} /> : <Moon className={`w-4 h-4 ${t.sub}`} />}
+      </button>
+      <button onClick={onChatToggle}
+        className={`relative p-1.5 rounded-lg border transition-colors
+          ${chatOpen ? "bg-[#E8601C] border-[#E8601C]" : `${t.card} border`}`}>
+        <MessageSquare className={`w-4 h-4 ${chatOpen ? "text-white" : t.sub}`} />
+        <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-[#E8601C]"
+          style={{ display: chatOpen ? "none" : "block" }} />
+      </button>
+    </header>
+  );
+}
+
 // ─── APP ─────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [dark, setDark] = useState(true); // true = dark mode, false = light mode
+  const [dark, setDark] = useState(true);
   const [page, setPage] = useState("discovery");
   const [showNewCampaign, setShowNewCampaign] = useState(false);
   const [campaignTemplate, setCampaignTemplate] = useState(null);
-  const [pipeline, setPipeline] = useState([]);
+  const [pipeline, setPipeline] = useState([
+    {
+      type:"demand", id:9001, company:"Engie", ticker:"ENGI", flag:"🇫🇷", industry:"Energy / Utilities",
+      commitment:"Carbon Neutral by 2045", emissions:"42M tCO₂e/yr", need:"5–10M credits/yr",
+      esg:81, warmth:"hot", score:89, stage:"Client",
+      rationale:"Major European utility with mandatory offset programme; signed MOU Q2 2025",
+      signals:["Engie confirms $200M green investment round","Paris climate board expands carbon offset mandate","Energy transition roadmap updated with Nature-based targets"],
+      contact:{ name:"Lena Bachmann", title:"Head of Carbon Markets", url:"https://linkedin.com/in/lena-bachmann" },
+    },
+    {
+      type:"demand", id:9002, company:"Tokyo Gas", ticker:"TKGAS", flag:"🇯🇵", industry:"Gas & Energy",
+      commitment:"Net Zero by 2050", emissions:"18M tCO₂e/yr", need:"2–4M credits/yr",
+      esg:76, warmth:"warm", score:82, stage:"Negotiating",
+      rationale:"Japanese corporate buyer in active due diligence on REDD+ projects; strong CORSIA interest",
+      signals:["Tokyo Gas releases J-Credit procurement roadmap","Japan government mandates offset retirement for utilities","Tokyo Gas DD team reviewing SBK and Katingan projects"],
+      contact:{ name:"Nicholas Yamamoto", title:"Sustainability Strategy Manager", url:"https://linkedin.com/in/nicholas-yamamoto" },
+    },
+  ]);
   const [toast, setToast] = useState(null);
   const [messages, setMessages] = useState([]);
   const [chatWidth, setChatWidth] = useState(260);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showMobileChat, setShowMobileChat] = useState(false);
   const chatResizing = useRef(false);
   const t = Th(dark);
 
-  // Chat panel resize
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Chat panel resize (desktop only)
   useEffect(() => {
     const onMove = (e) => {
       if (!chatResizing.current) return;
-      // chatWidth = mouseX - sidebarWidth(200)
       const newW = e.clientX - 200;
       setChatWidth(Math.max(200, Math.min(500, newW)));
     };
@@ -4251,6 +4753,94 @@ export default function App() {
     notify(`${ag.id} deployed and live!`);
   };
 
+  const sharedStyles = `
+    @keyframes slideIn { from { transform: translateX(100%); opacity:0 } to { transform:translateX(0); opacity:1 } }
+    @keyframes slideUp { from { transform: translateY(100%); opacity:0 } to { transform:translateY(0); opacity:1 } }
+    * { box-sizing: border-box; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(120,120,120,0.2); border-radius: 2px; }
+    select option { background: ${dark?"#1C1F28":"#FFFFFF"}; color: ${dark?"#FFFFFF":"#111827"}; }
+    textarea { scrollbar-width: none; }
+    :root {
+      --c-bg:          ${dark?"#0D0F14":"#FFFFFF"};
+      --c-bg2:         ${dark?"#090B0F":"#F5F6F8"};
+      --c-bg3:         ${dark?"#13171C":"#F0F2F5"};
+      --c-card:        ${dark?"#141820":"#FFFFFF"};
+      --c-card2:       ${dark?"#1A1D24":"#F9FAFB"};
+      --c-card3:       ${dark?"#252830":"#F3F4F6"};
+      --c-border:      ${dark?"#1C1F28":"#E4E6EA"};
+      --c-border2:     ${dark?"#2A2D38":"#D1D5DB"};
+      --c-text:        ${dark?"#FFFFFF":"#111827"};
+      --c-sub:         ${dark?"rgba(255,255,255,0.65)":"#6B7280"};
+      --c-muted:       ${dark?"rgba(255,255,255,0.38)":"#9CA3AF"};
+      --c-hover:       ${dark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.04)"};
+      --c-opp-bg:      ${dark?"#0A0F12":"#F8FAFB"};
+      --c-opp-head:    ${dark?"#080C0F":"#F1F5F9"};
+      --c-opp-border:  ${dark?"#141C22":"#E2E8F0"};
+      --c-opp-hover:   ${dark?"#0F1C24":"#EEF6F2"};
+      --c-opp-text:    ${dark?"#C8D8D0":"#1F2937"};
+      --c-opp-sub:     ${dark?"#3A5560":"#6B7280"};
+      --c-opp-head-text:${dark?"#2A3A42":"#9CA3AF"};
+      --c-scan-bg:     ${dark?"#0E1921":"#EFF6F3"};
+      --c-scan-border: ${dark?"#1A3040":"#BBD5C8"};
+    }
+  `;
+
+  const pageContent = (
+    <>
+      {page === "dashboard"  && <div className="flex-1 overflow-y-auto"><Dashboard        t={t} dark={dark} pipeline={pipeline} setPage={setPage} /></div>}
+      {page === "analytics"  && <div className="flex-1 overflow-y-auto"><AnalyticsPage     t={t} dark={dark} pipeline={pipeline} /></div>}
+      {page === "scout"      && <AgentHub        t={t} dark={dark} pipeline={pipeline} addLead={addLead} addProject={addProject} initialTab="corporates" />}
+      {page === "nexus"      && <div className="flex-1 overflow-hidden flex flex-col"><Matchmaking t={t} dark={dark} pipeline={pipeline} addLead={addLead} addProject={addProject} /></div>}
+      {page === "vault"      && <div className="flex-1 overflow-y-auto"><DataRoomPage      t={t} dark={dark} /></div>}
+      {page === "pulse"      && <div className="flex-1 overflow-y-auto"><PulsePage         t={t} dark={dark} /></div>}
+      {page === "clients"    && <div className="flex-1 overflow-hidden flex flex-col"><ClientsPage t={t} dark={dark} pipeline={pipeline} setPage={setPage} /></div>}
+      {page === "discovery"  && <AgentHub        t={t} dark={dark} pipeline={pipeline} addLead={addLead} addProject={addProject} />}
+      {page === "campaigns"  && <CampaignsPage   t={t} dark={dark} showModal={showNewCampaign} setShowModal={setShowNewCampaign} campaignTemplate={campaignTemplate} setCampaignTemplate={setCampaignTemplate} />}
+      {page === "dataroom"   && <div className="flex-1 overflow-y-auto"><DataRoomPage      t={t} dark={dark} /></div>}
+      {page === "pipeline"   && <Pipeline        t={t} dark={dark} pipeline={pipeline} setPipeline={setPipeline} />}
+      {page === "terminal"   && <div className="flex-1 overflow-hidden flex flex-col"><AgentTerminalPage t={t} dark={dark} agents={agents} setAgents={setAgents} /></div>}
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <div className={`flex flex-col h-screen overflow-hidden ${t.bg}`} style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+        {toast && (
+          <div style={{ animation: "slideIn 0.2s ease-out" }}
+            className="fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-2xl text-sm font-semibold bg-[#E8601C] text-white">
+            <CheckCircle className="w-4 h-4" />{toast.msg}
+          </div>
+        )}
+        <style>{sharedStyles}</style>
+
+        <MobileTopbar t={t} page={page} dark={dark} setDark={setDark}
+          onChatToggle={() => setShowMobileChat(v => !v)} chatOpen={showMobileChat} />
+
+        <main className="flex-1 overflow-hidden flex flex-col" style={{ paddingBottom: 60 }}>
+          {pageContent}
+        </main>
+
+        <MobileBottomNav t={t} page={page} setPage={(p) => { setPage(p); setShowMobileChat(false); }}
+          pipelineCount={pipeline.length} onChatToggle={() => setShowMobileChat(v => !v)} chatOpen={showMobileChat} />
+
+        {showMobileChat && (
+          <div className="fixed inset-0 z-50 flex flex-col justify-end">
+            <div className="flex-1 bg-black/60" onClick={() => setShowMobileChat(false)} />
+            <div style={{ height: "72vh", animation: "slideUp 0.25s ease-out", display: "flex", flexDirection: "column",
+              background: dark ? "#090B0F" : "#F5F6F8", borderTop: "1px solid #1C1F28", borderRadius: "16px 16px 0 0", overflow: "hidden" }}>
+              <ChatPanel t={t} dark={dark} messages={messages} setMessages={setMessages} setPage={(p) => { setPage(p); setShowMobileChat(false); }}
+                addLead={addLead} addProject={addProject} page={page}
+                openNewCampaign={(tpl) => { setCampaignTemplate(tpl || null); setShowNewCampaign(true); setShowMobileChat(false); }}
+                addAgent={addAgent} />
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className={`flex h-screen overflow-hidden ${t.bg}`} style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       {toast && (
@@ -4260,39 +4850,7 @@ export default function App() {
           <CheckCircle className="w-4 h-4" />{toast.msg}
         </div>
       )}
-
-      <style>{`
-        @keyframes slideIn { from { transform: translateX(100%); opacity:0 } to { transform:translateX(0); opacity:1 } }
-        * { box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(120,120,120,0.2); border-radius: 2px; }
-        select option { background: ${dark?"#1C1F28":"#FFFFFF"}; color: ${dark?"#FFFFFF":"#111827"}; }
-        textarea { scrollbar-width: none; }
-        :root {
-          --c-bg:          ${dark?"#0D0F14":"#FFFFFF"};
-          --c-bg2:         ${dark?"#090B0F":"#F5F6F8"};
-          --c-bg3:         ${dark?"#13171C":"#F0F2F5"};
-          --c-card:        ${dark?"#141820":"#FFFFFF"};
-          --c-card2:       ${dark?"#1A1D24":"#F9FAFB"};
-          --c-card3:       ${dark?"#252830":"#F3F4F6"};
-          --c-border:      ${dark?"#1C1F28":"#E4E6EA"};
-          --c-border2:     ${dark?"#2A2D38":"#D1D5DB"};
-          --c-text:        ${dark?"#FFFFFF":"#111827"};
-          --c-sub:         ${dark?"rgba(255,255,255,0.65)":"#6B7280"};
-          --c-muted:       ${dark?"rgba(255,255,255,0.38)":"#9CA3AF"};
-          --c-hover:       ${dark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.04)"};
-          --c-opp-bg:      ${dark?"#0A0F12":"#F8FAFB"};
-          --c-opp-head:    ${dark?"#080C0F":"#F1F5F9"};
-          --c-opp-border:  ${dark?"#141C22":"#E2E8F0"};
-          --c-opp-hover:   ${dark?"#0F1C24":"#EEF6F2"};
-          --c-opp-text:    ${dark?"#C8D8D0":"#1F2937"};
-          --c-opp-sub:     ${dark?"#3A5560":"#6B7280"};
-          --c-opp-head-text:${dark?"#2A3A42":"#9CA3AF"};
-          --c-scan-bg:     ${dark?"#0E1921":"#EFF6F3"};
-          --c-scan-border: ${dark?"#1A3040":"#BBD5C8"};
-        }
-      `}</style>
+      <style>{sharedStyles}</style>
 
       {/* Sidebar */}
       <Sidebar t={t} page={page} setPage={setPage} pipelineCount={pipeline.length} dark={dark} setDark={setDark} />
@@ -4309,13 +4867,7 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Topbar t={t} page={page} dark={dark} setDark={setDark} />
         <main className="flex-1 overflow-hidden flex flex-col">
-          {page === "dashboard" && <div className="flex-1 overflow-y-auto"><Dashboard   t={t} dark={dark} pipeline={pipeline} setPage={setPage} /></div>}
-          {page === "discovery" && <AgentHub      t={t} dark={dark} pipeline={pipeline} addLead={addLead} addProject={addProject} />}
-          {page === "campaigns" && <CampaignsPage  t={t} dark={dark} showModal={showNewCampaign} setShowModal={setShowNewCampaign} campaignTemplate={campaignTemplate} setCampaignTemplate={setCampaignTemplate} />}
-          {page === "clients"   && <div className="flex-1 overflow-hidden flex flex-col"><ClientsPage    t={t} dark={dark} pipeline={pipeline} setPage={setPage} /></div>}
-          {page === "dataroom"  && <div className="flex-1 overflow-y-auto"><DataRoomPage   t={t} dark={dark} /></div>}
-          {page === "pipeline"  && <Pipeline      t={t} dark={dark} pipeline={pipeline} setPipeline={setPipeline} />}
-          {page === "terminal"  && <div className="flex-1 overflow-hidden flex flex-col"><AgentTerminalPage t={t} dark={dark} agents={agents} setAgents={setAgents} /></div>}
+          {pageContent}
         </main>
       </div>
     </div>
